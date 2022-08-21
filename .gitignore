@@ -96,3 +96,9 @@ db.sqlite3
 # json
 .json
 *.json
+
+*.log.*
+nginx*
+*.sock
+__pycache__
+__pycache__/
