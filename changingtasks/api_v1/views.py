@@ -30,7 +30,9 @@ fh_success.setFormatter(formatter)
 logger_success.addHandler(fh_success)
 
 
-APPLICATION_TOKEN = "4f5d9be41956857160cebb5d594e40f7"
+#
+token_data = service.get_token()
+APPLICATION_TOKEN = token_data.get("application_token", None)
 
 obj_markers = {
   "phone":            '☎️',
