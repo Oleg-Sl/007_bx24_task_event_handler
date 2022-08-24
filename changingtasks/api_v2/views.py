@@ -100,13 +100,6 @@ class TaskCreateApiView(views.APIView):
 
 
 class TaskUpdateApiView(views.APIView):
-    # def post(self, request):
-    #     logger_error.info({
-    #         "request.query_params": request.query_params,
-    #         "request.data": request.data
-    #     })
-    #
-    #     return Response("OK", status=status.HTTP_200_OK)
 
     def post(self, request):
         logger_error.info({

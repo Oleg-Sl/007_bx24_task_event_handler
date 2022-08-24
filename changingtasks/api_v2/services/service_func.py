@@ -74,15 +74,15 @@ def get_task_name(deal, id_task):
 # получение текста комментария задачи
 def get_comment_task(status, task_name):
     if status == '2':
-        desc = f'Создана задача "{task_name}"'
+        desc = f'Создана "{task_name}"'
     elif status == '3':
-        desc = f'Задача "{task_name}" выполняется'
+        desc = f'"{task_name}" выполняется'
     elif status == '4':
-        desc = f'Задача "{task_name}" ожидает контроля'
+        desc = f'"{task_name}" ожидает контроля'
     elif status == '5':
-        desc = f'Задача "{task_name}" завершена'
+        desc = f'"{task_name}" завершена'
     elif status == '6':
-        desc = f'Задача "{task_name}" отложена'
+        desc = f'"{task_name}" отложена'
     return desc
 
 
@@ -144,18 +144,11 @@ def get_id_task_from_deal(deal, field_name):
 
 # прокидывание комментариев в задачу "Передача заказа"
 def throwing_comments(task, deal):
-    print("task = ", task)
-    print("deal = ", deal)
-    logger_error.error({
-        "event": "ПОЛУЧЕНИЕ ЗАПИСИ ИЗ БД",
-        "id": task["id"]
-    })
+    # print("task = ", task)
+    # print("deal = ", deal)
+
     exist_task = Task.objects.filter(id_bx=task["id"]).first()
-    logger_error.error({
-        "event": "ПОЛУЧИЛИ ЗАПИСЬ ИЗ БД",
-        "id": task["id"],
-        "exist_task": exist_task
-    })
+
     if exist_task and exist_task.status == task["status"]:
         logger_error.error({
             "event": "add comment",
@@ -164,16 +157,9 @@ def throwing_comments(task, deal):
             "message": f"Статус задачи с ID = {task['id']} не изменился",
         })
         return
-    logger_error.error({
-        "event": "ПОЛУЧЕНИЕ НАЗВАНИЯ ЗАДАЧИ",
-        "id": task["id"]
-    })
+
     task_name_rus = get_task_name(deal, task["id"])
-    logger_error.error({
-        "event": "ПОЛУЧИЛИ НАЗВАНИЕ ЗАДАЧИ",
-        "task_name_rus": task_name_rus,
-        "id": task["id"]
-    })
+
     if not task_name_rus:
         logger_error.error({
             "event": "add comment",
@@ -181,25 +167,14 @@ def throwing_comments(task, deal):
             "message": f"Не удалось получить общее название задачи с ID = {task['id']}",
         })
         return
-    logger_error.error({
-        "event": "ПОЛУЧЕНИЕ ТЕКСТА КОММЕНТАРИЯ",
-        "id": task["id"]
-    })
+
     text_comment = get_comment_task(task["status"], task_name_rus)
     text_comment += f": {get_link_task(task['id'], task['title'])}"
-    logger_error.error({
-        "event": "ПОЛУЧИЛИ ТЕКСТ КОММЕНТАРИЯ",
-        "text_comment": text_comment,
-        "id": task["id"]
-    })
+
     id_task_recipient_comment = get_id_task_from_deal(deal, FIELD_DEAL__TASK_ORDER_TRANSFER)
     if id_task_recipient_comment == task['id']:
         return
-    logger_error.error({
-        "event": "ПОЛУЧАТЕЛЬ СООБЩЕНИЯ",
-        "id_task_recipient_comment": id_task_recipient_comment,
-        "id": task["id"]
-    })
+
     if not id_task_recipient_comment:
         logger_error.error({
             "event": "add comment",
@@ -208,19 +183,9 @@ def throwing_comments(task, deal):
         })
         return
 
-    logger_error.error({
-        "event": "ОТПРАВКА КОММЕНТАРИЯ",
-        "id_task_recipient_comment": id_task_recipient_comment,
-        "id": task["id"]
-    })
     # отправка комментария
     send_comment(id_task_recipient_comment, text_comment)
-    logger_error.error({
-        "event": "КОММЕНТАРИЙ ОТПРАВЛЕН",
-        "text_comment": text_comment,
-        "id_task_recipient_comment": id_task_recipient_comment,
-        "id": task["id"]
-    })
+
     if exist_task:
         exist_task.status = task["status"]
     else:
