@@ -110,12 +110,9 @@ class TaskUpdateApiView(views.APIView):
 
     def post(self, request):
         logger_error.info({
-            "auth[application_token]": request.data.get("auth[application_token]", None),
-            "APPLICATION_TOKEN": APPLICATION_TOKEN,
             "data[FIELDS_AFTER][ID]": request.data.get("data[FIELDS_AFTER][ID]", ""),
             "request.data": request.data
         })
-        # task_id = request.query_params.get("data[FIELDS_AFTER][ID]", "")
         task_id = request.data.get("data[FIELDS_AFTER][ID]", "")
         application_token = request.data.get("auth[application_token]", None)
 
@@ -127,10 +124,6 @@ class TaskUpdateApiView(views.APIView):
             logger_error.error("Not transferred ID task")
             return Response("Not transferred ID task", status=status.HTTP_400_BAD_REQUEST)
 
-        logger_error.error({
-            "task_id": task_id,
-            "desc": "Получение данных задачи"
-        })
         # получение данных сущности - задача
         result_task = service_func.get_task_data(task_id)
         if not result_task or "result" not in result_task or "task" not in result_task["result"]:
@@ -159,11 +152,7 @@ class TaskUpdateApiView(views.APIView):
                 "message": "Отсутствует привязка задачи к сделке",
             })
             return Response("The task is not linked to the deal", status=status.HTTP_400_BAD_REQUEST)
-        logger_error.error({
-            "task_id": task_id,
-            "id_deal": id_deal,
-            "desc": "Получение данных сделки"
-        })
+
         # получение данных сущности - сделка
         result_deal = service_func.get_deal_data(id_deal)
         if not result_deal or "result" not in result_deal:
@@ -176,11 +165,7 @@ class TaskUpdateApiView(views.APIView):
             return Response("No response from bitrix", status=status.HTTP_400_BAD_REQUEST)
 
         deal = result_deal["result"]
-        logger_error.error({
-            "task_id": task_id,
-            "id_deal": id_deal,
-            "desc": "Проброс комментариев в задачу"
-        })
+
         # проброс комментариев в задачу
         service_func.throwing_comments(task, deal)
 

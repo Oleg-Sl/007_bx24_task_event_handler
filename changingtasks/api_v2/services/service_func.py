@@ -150,6 +150,12 @@ def throwing_comments(task, deal):
     exist_task = Task.objects.filter(id_bx=task["id"]).first()
 
     if exist_task and exist_task.status == task["status"]:
+        logger_error.error({
+            "event": "add comment",
+            "exist_task.status": exist_task.status if exist_task else None,
+            "status": task["status"],
+            "message": f"Статус задачи с ID = {task['id']} не изменился",
+        })
         return
 
     task_name_rus = get_task_name(deal, task["id"])
