@@ -117,10 +117,7 @@ class TaskUpdateApiView(views.APIView):
             logger_error.error("Not transferred ID task")
             return Response("Not transferred ID task", status=status.HTTP_400_BAD_REQUEST)
 
-        logger_error.error({
-            "event": "ПОЛУЧЕНИЕ ДАННЫХ ЗАДАЧИ",
-            "task_id": task_id
-        })
+
         # получение данных сущности - задача
         result_task = service_func.get_task_data(task_id)
         # logger_error.error({
@@ -154,10 +151,7 @@ class TaskUpdateApiView(views.APIView):
             })
             return Response("The task is not linked to the deal", status=status.HTTP_400_BAD_REQUEST)
 
-        logger_error.error({
-            "event": "ПОЛУЧЕНИЕ ДАННЫХ сделки",
-            "id_deal": id_deal
-        })
+
         # получение данных сущности - сделка
         result_deal = service_func.get_deal_data(id_deal)
         # logger_error.error({
@@ -174,10 +168,7 @@ class TaskUpdateApiView(views.APIView):
             return Response("No response from bitrix", status=status.HTTP_400_BAD_REQUEST)
 
         deal = result_deal["result"]
-        logger_error.error({
-            "event": "throwing_comments",
-            "id_deal": id_deal
-        })
+
         # проброс комментариев в задачу
         service_func.throwing_comments(task, deal)
 

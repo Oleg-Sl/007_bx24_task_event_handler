@@ -146,14 +146,9 @@ def get_id_task_from_deal(deal, field_name):
 def throwing_comments(task, deal):
     # print("task = ", task)
     # print("deal = ", deal)
-    logger_error.error({
-        "event": "ЗАШЛИ В throwing_comments",
-        "id_task": task["id"]
-    })
+
     exist_task = Task.objects.filter(id_bx=task["id"]).first()
-    logger_error.error({
-        "event": "СУЩЕСТВУЕТ В БД"
-    })
+
     if exist_task and exist_task.status == task["status"]:
         logger_error.error({
             "event": "add comment",
@@ -164,11 +159,7 @@ def throwing_comments(task, deal):
         return
 
     task_name_rus = get_task_name(deal, task["id"])
-    logger_error.error({
-        "event": "ИМЯ ЗАДАЧИ",
-        "id_task": task["id"],
-        "task_name_rus": task_name_rus,
-    })
+
     if not task_name_rus:
         logger_error.error({
             "event": "add comment",
@@ -179,11 +170,7 @@ def throwing_comments(task, deal):
 
     text_comment = get_comment_task(task["status"], task_name_rus)
     text_comment += f": {get_link_task(task['id'], task['title'])}"
-    logger_error.error({
-        "event": "ТЕКСТ КОММЕНТАРИЯ",
-        "id_task": task['id'],
-        "text_comment": text_comment
-    })
+
     id_task_recipient_comment = get_id_task_from_deal(deal, FIELD_DEAL__TASK_ORDER_TRANSFER)
     if id_task_recipient_comment == task['id']:
         return
