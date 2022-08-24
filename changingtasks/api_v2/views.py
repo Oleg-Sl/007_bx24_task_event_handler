@@ -109,7 +109,6 @@ class TaskUpdateApiView(views.APIView):
 
     def post(self, request):
         logger_error.info({
-        logger_error.info({
             "request.query_params": request.query_params,
             "request.data": request.data
         })
