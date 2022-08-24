@@ -119,9 +119,11 @@ class TaskUpdateApiView(views.APIView):
         application_token = request.data.get("auth[application_token]", None)
 
         if application_token != APPLICATION_TOKEN:
+            logger_error.error("Unverified event source")
             return Response("Unverified event source", status=status.HTTP_400_BAD_REQUEST)
 
         if not task_id:
+            logger_error.error("Not transferred ID task")
             return Response("Not transferred ID task", status=status.HTTP_400_BAD_REQUEST)
 
         # получение данных сущности - задача
