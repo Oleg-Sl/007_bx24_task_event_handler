@@ -123,10 +123,10 @@ class TaskUpdateApiView(views.APIView):
         })
         # получение данных сущности - задача
         result_task = service_func.get_task_data(task_id)
-        logger_error.error({
-            "event": "ПОЛУЧИЛИ ДАННЫЕ ЗАДАЧИ",
-            "result_task": result_task
-        })
+        # logger_error.error({
+        #     "event": "ПОЛУЧИЛИ ДАННЫЕ ЗАДАЧИ",
+        #     "result_task": result_task
+        # })
         if not result_task or "result" not in result_task or "task" not in result_task["result"]:
             logger_error.error({
                 "event": "TaskUpdateApiView",
@@ -160,10 +160,10 @@ class TaskUpdateApiView(views.APIView):
         })
         # получение данных сущности - сделка
         result_deal = service_func.get_deal_data(id_deal)
-        logger_error.error({
-            "event": "ПОЛУЧИЛИ ДАННЫЕ СДЕЛКИ",
-            "result_deal": result_deal
-        })
+        # logger_error.error({
+        #     "event": "ПОЛУЧИЛИ ДАННЫЕ СДЕЛКИ",
+        #     "result_deal": result_deal
+        # })
         if not result_deal or "result" not in result_deal:
             logger_error.error({
                 "event": "TaskUpdateApiView",

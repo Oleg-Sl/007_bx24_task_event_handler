@@ -170,7 +170,11 @@ def throwing_comments(task, deal):
 
     text_comment = get_comment_task(task["status"], task_name_rus)
     text_comment += f": {get_link_task(task['id'], task['title'])}"
-
+    logger_error.error({
+        "event": "ТЕКСТ КОММЕНТАРИЯ",
+        "id_task": task['id'],
+        "text_comment": text_comment
+    })
     id_task_recipient_comment = get_id_task_from_deal(deal, FIELD_DEAL__TASK_ORDER_TRANSFER)
     if id_task_recipient_comment == task['id']:
         return
