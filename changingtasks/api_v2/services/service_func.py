@@ -88,7 +88,7 @@ def get_comment_task(status, task_name):
 
 # получение ссылки на задачу
 def get_link_task(id_task, title_task):
-    return f"<a href='/company/personal/user/{USER_OPEN_TASK}/tasks/task/view/{id_task}/'></a>"
+    return f"<a href='/company/personal/user/{USER_OPEN_TASK}/tasks/task/view/{title_task}/'></a>"
 
 
 # получение данных о задаче из Битрикс
