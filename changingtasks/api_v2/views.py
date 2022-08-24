@@ -9,7 +9,7 @@ from .services import service
 from .services import service_func
 
 logger_error = logging.getLogger('error')
-logger_error.setLevel(logging.ERROR)
+logger_error.setLevel(logging.INFO)
 fh_error = logging.handlers.TimedRotatingFileHandler('./logs/error.log', when='D', interval=1, backupCount=14)
 formatter_error = logging.Formatter('[%(asctime)s] %(levelname).1s %(message)s')
 fh_error.setFormatter(formatter_error)
@@ -99,8 +99,16 @@ class TaskCreateApiView(views.APIView):
 
 
 class TaskUpdateApiView(views.APIView):
+    # def post(self, request):
+    #     logger_error.info({
+    #         "request.query_params": request.query_params,
+    #         "request.data": request.data
+    #     })
+    #
+    #     return Response("OK", status=status.HTTP_200_OK)
 
     def post(self, request):
+        logger_error.info({
         logger_error.info({
             "request.query_params": request.query_params,
             "request.data": request.data
