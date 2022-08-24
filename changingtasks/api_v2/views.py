@@ -111,6 +111,7 @@ class TaskUpdateApiView(views.APIView):
     def post(self, request):
         logger_error.info({
             "auth[application_token]": request.data.get("auth[application_token]", None),
+            "APPLICATION_TOKEN": APPLICATION_TOKEN,
             "data[FIELDS_AFTER][ID]": request.data.get("data[FIELDS_AFTER][ID]", ""),
             "request.data": request.data
         })
