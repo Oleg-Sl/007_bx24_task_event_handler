@@ -148,7 +148,11 @@ def throwing_comments(task, deal):
     # print("deal = ", deal)
 
     exist_task = Task.objects.filter(id_bx=task["id"]).first()
-
+    logger_error.error({
+        "event": "СУЩЕСТВУЕТ В БД",
+        "id_task": task["id"],
+        "exist_task": exist_task,
+    })
     if exist_task and exist_task.status == task["status"]:
         logger_error.error({
             "event": "add comment",
@@ -159,7 +163,11 @@ def throwing_comments(task, deal):
         return
 
     task_name_rus = get_task_name(deal, task["id"])
-
+    logger_error.error({
+        "event": "ИМЯ ЗАДАЧИ",
+        "id_task": task["id"],
+        "task_name_rus": task_name_rus,
+    })
     if not task_name_rus:
         logger_error.error({
             "event": "add comment",
