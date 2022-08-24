@@ -117,8 +117,16 @@ class TaskUpdateApiView(views.APIView):
             logger_error.error("Not transferred ID task")
             return Response("Not transferred ID task", status=status.HTTP_400_BAD_REQUEST)
 
+        logger_error.error({
+            "event": "ПОЛУЧЕНИЕ ДАННЫХ ЗАДАЧИ",
+            "task_id": task_id
+        })
         # получение данных сущности - задача
         result_task = service_func.get_task_data(task_id)
+        logger_error.error({
+            "event": "ПОЛУЧИЛИ ДАННЫЕ ЗАДАЧИ",
+            "result_task": result_task
+        })
         if not result_task or "result" not in result_task or "task" not in result_task["result"]:
             logger_error.error({
                 "event": "TaskUpdateApiView",
@@ -146,8 +154,16 @@ class TaskUpdateApiView(views.APIView):
             })
             return Response("The task is not linked to the deal", status=status.HTTP_400_BAD_REQUEST)
 
+        logger_error.error({
+            "event": "ПОЛУЧЕНИЕ ДАННЫХ сделки",
+            "id_deal": id_deal
+        })
         # получение данных сущности - сделка
         result_deal = service_func.get_deal_data(id_deal)
+        logger_error.error({
+            "event": "ПОЛУЧИЛИ ДАННЫЕ СДЕЛКИ",
+            "result_deal": result_deal
+        })
         if not result_deal or "result" not in result_deal:
             logger_error.error({
                 "event": "TaskUpdateApiView",
