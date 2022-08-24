@@ -146,7 +146,10 @@ def get_id_task_from_deal(deal, field_name):
 def throwing_comments(task, deal):
     # print("task = ", task)
     # print("deal = ", deal)
-
+    logger_error.error({
+        "event": "ЗАШЛИ В throwing_comments",
+        "id_task": task["id"]
+    })
     exist_task = Task.objects.filter(id_bx=task["id"]).first()
     logger_error.error({
         "event": "СУЩЕСТВУЕТ В БД",
