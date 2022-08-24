@@ -174,7 +174,10 @@ class TaskUpdateApiView(views.APIView):
             return Response("No response from bitrix", status=status.HTTP_400_BAD_REQUEST)
 
         deal = result_deal["result"]
-
+        logger_error.error({
+            "event": "throwing_comments",
+            "id_deal": id_deal
+        })
         # проброс комментариев в задачу
         service_func.throwing_comments(task, deal)
 
