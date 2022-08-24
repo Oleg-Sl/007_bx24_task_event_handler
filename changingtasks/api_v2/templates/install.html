@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+
+{% load static %}
+
+<html lang="en">
+    <head>
+    	{% load static %}
+		<script src="//api.bitrix24.com/api/v1/"></script>
+	</head>
+	<body>
+		<p>INSTALL.html</p>
+		<script>
+			let DOMAIN = "https://super-vinyl.online/task";
+			let URL__CREATE_TASK = `${DOMAIN}/api/v2/task-create/`;
+			let URL__UPDATE_TASK = `${DOMAIN}//api/v2/task-update/`;
+			let URL__DELETE_TASK = `${DOMAIN}//api/v2/task-delete//`;
+
+			async function callMethod(method, params = {}) {
+				return new Promise((resolve, reject) => {
+					let callback = result => {
+						if (result.status != 200 || result.error()) {
+							console.log(`${result.error()} (callMethod ${method}: ${JSON.stringify(params)})`);
+							return reject("");
+						}
+						return resolve(result.data());
+					};
+					BX24.callMethod(method, params, callback);
+				});
+			}
+
+			async function addHandler() {
+				await callMethod(
+					'event.bind',
+					{
+						"event": "ONTASKADD",
+						"handler": URL__CREATE_TASK,
+					},
+					console.log('Обработчик ONTASKADD установлен')
+				)
+				await callMethod(
+					'event.bind',
+					{
+						"event": "ONTASKUPDATE",
+						"handler": URL__UPDATE_TASK,
+					},
+					console.log('Обработчик ONTASKUPDATE установлен')
+				)
+				await callMethod(
+					'event.bind',
+					{
+						"event": "ONTASKDELETE",
+						"handler": URL__DELETE_TASK,
+					},
+					console.log('Обработчик ONTASKDELETE установлен')
+				)
+			}
+
+			BX24.init(async function(){
+				await addHandler();
+				BX24.installFinish();
+			});
+		</script>
+	</body>
+</html>

@@ -6,7 +6,7 @@ import logging
 
 from . import bitrix24
 from .services import service
-from .services import service_func
+from .services import service_func, tokens
 
 logger_error = logging.getLogger('error')
 logger_error.setLevel(logging.INFO)
@@ -30,7 +30,7 @@ class InstallApiView(views.APIView):
             "application_token": request.data.get("auth[application_token]", ""),   # используется для проверки достоверности событий Битрикс24
             'client_endpoint': f'https://{request.data.get("auth[domain]", "atonlab.bitrix24.ru")}/rest/',
         }
-        service.write_app_data_to_file(data)
+        tokens.save_secrets(data)
         return render(request, 'install.html')
 
 
