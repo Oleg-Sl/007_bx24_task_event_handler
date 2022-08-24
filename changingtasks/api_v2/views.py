@@ -31,7 +31,7 @@ class InstallApiView(views.APIView):
             'client_endpoint': f'https://{request.data.get("auth[domain]", "atonlab.bitrix24.ru")}/rest/',
         }
         tokens.save_secrets(data)
-        return render(request, 'install.html')
+        return render(request, 'install_2.html')
 
 
 class TaskCreateApiView(views.APIView):
