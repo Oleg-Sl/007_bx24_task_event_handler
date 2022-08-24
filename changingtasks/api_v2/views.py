@@ -37,7 +37,8 @@ class InstallApiView(views.APIView):
 class TaskCreateApiView(views.APIView):
     def post(self, request):
         logger_error.info({
-            "request.query_params": request.query_params,
+            "auth[application_token]": request.data.get("auth[application_token]", None),
+            "data[FIELDS_AFTER][ID]": request.data.get("data[FIELDS_AFTER][ID]", ""),
             "request.data": request.data
         })
         # task_id = request.query_params.get("data[FIELDS_AFTER][ID]", "")
@@ -109,7 +110,8 @@ class TaskUpdateApiView(views.APIView):
 
     def post(self, request):
         logger_error.info({
-            "request.query_params": request.query_params,
+            "auth[application_token]": request.data.get("auth[application_token]", None),
+            "data[FIELDS_AFTER][ID]": request.data.get("data[FIELDS_AFTER][ID]", ""),
             "request.data": request.data
         })
         # task_id = request.query_params.get("data[FIELDS_AFTER][ID]", "")
