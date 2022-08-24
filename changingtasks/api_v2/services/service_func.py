@@ -144,8 +144,8 @@ def get_id_task_from_deal(deal, field_name):
 
 # прокидывание комментариев в задачу "Передача заказа"
 def throwing_comments(task, deal):
-    # print("task = ", task)
-    # print("deal = ", deal)
+    print("task = ", task)
+    print("deal = ", deal)
     logger_error.error({
         "event": "ПОЛУЧЕНИЕ ЗАПИСИ ИЗ БД",
         "id": task["id"]
@@ -193,6 +193,8 @@ def throwing_comments(task, deal):
         "id": task["id"]
     })
     id_task_recipient_comment = get_id_task_from_deal(deal, FIELD_DEAL__TASK_ORDER_TRANSFER)
+    if id_task_recipient_comment == task['id']:
+        return
     logger_error.error({
         "event": "ПОЛУЧАТЕЛЬ СООБЩЕНИЯ",
         "id_task_recipient_comment": id_task_recipient_comment,
