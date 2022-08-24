@@ -45,8 +45,8 @@ class TaskCreateApiView(views.APIView):
         task_id = request.data.get("data[FIELDS_AFTER][ID]", "")
         application_token = request.data.get("auth[application_token]", None)
 
-        if application_token != APPLICATION_TOKEN:
-            return Response("Unverified event source", status=status.HTTP_400_BAD_REQUEST)
+        # if application_token != APPLICATION_TOKEN:
+        #     return Response("Unverified event source", status=status.HTTP_400_BAD_REQUEST)
 
         if not task_id:
             return Response("Not transferred ID task", status=status.HTTP_400_BAD_REQUEST)
@@ -119,9 +119,9 @@ class TaskUpdateApiView(views.APIView):
         task_id = request.data.get("data[FIELDS_AFTER][ID]", "")
         application_token = request.data.get("auth[application_token]", None)
 
-        if application_token != APPLICATION_TOKEN:
-            logger_error.error("Unverified event source")
-            return Response("Unverified event source", status=status.HTTP_400_BAD_REQUEST)
+        # if application_token != APPLICATION_TOKEN:
+        #     logger_error.error("Unverified event source")
+        #     return Response("Unverified event source", status=status.HTTP_400_BAD_REQUEST)
 
         if not task_id:
             logger_error.error("Not transferred ID task")
