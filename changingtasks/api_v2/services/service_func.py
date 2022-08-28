@@ -1,6 +1,7 @@
 # from mainapp.models import Deal, Stage
 # from api_v1.serializers import DealSerializer
 import logging
+import datetime
 
 
 from . import bitrix24
@@ -97,7 +98,7 @@ def get_task_data(id_task):
         "tasks.task.get",
         {
             "taskId": id_task,
-            "select": ["UF_CRM_TASK", "STATUS", "TITLE"]
+            "select": ["UF_CRM_TASK", "STATUS", "TITLE", "DEADLINE"]
         }
     )
     return response
@@ -124,6 +125,18 @@ def send_comment(id_task_order_transfer, text_comment):
         }
     )
     # response = ""
+    return response
+
+
+# обновление крайнего срока в главной задаче
+def update_date(id_task, date):
+    response = bx24.call(
+        "tasks.task.update",
+        {
+            "taskId": id_task,
+            "fields": {"DEADLINE": date.isoformat()}
+        }
+    )
     return response
 
 
@@ -200,93 +213,47 @@ def throwing_comments(task, deal):
     })
 
 
+# изменение крайнего срока задачи "Передача заказа"
+def change_deadline(task, deal):
+    id_task_minor = task["id"]
+    id_task_main = get_id_task_from_deal(deal, FIELD_DEAL__TASK_ORDER_TRANSFER)
+
+    if id_task_main == id_task_minor:
+        return
+
+    if not id_task_main:
+        logger_error.error({
+            "event": "change deadline",
+            "id_deal": deal["ID"],
+            "message": "В сделке отсутствует поле c ID задачи на передачу заказа",
+        })
+        return
+
+    # получение данных главной задачи
+    result_task = get_task_data(id_task_main)
+    if not result_task or "result" not in result_task or "task" not in result_task["result"]:
+        logger_error.error({
+            "event": "Change deadline",
+            "task_id": id_task_main,
+            "response": result_task,
+            "message": "Не удалось получить данные задачи",
+        })
+        return
+
+    # Крайние сроки главной и побочной задачи в виде строки
+    deadline_str_main = result_task["result"]["task"]["deadline"]
+    deadline_str_minor = task["deadline"]
+    deadline_main = None
+    deadline_minor = None
+
+    if deadline_str_main:
+        deadline_main = datetime.datetime.strptime(deadline_str_main, "%Y-%m-%dT%H:%M:%S%z")
+
+    if deadline_str_minor:
+        deadline_minor = datetime.datetime.strptime(deadline_str_minor, "%Y-%m-%dT%H:%M:%S%z")
+
+    # обновление крайнего срока главной задачи
+    if not deadline_main or deadline_main < deadline_minor:
+        update_date(id_task_main, deadline_minor)
 
 
-
-
-
-
-# def get_deal(id_task):
-#     response = bx24.bath({
-#         "halt": 0,
-#         "cmd": {
-#             "zamer": f"crm.deal.list?filter[UF_CRM_1661089690]={id_task},
-#             "zamer": "crm.deal.list?filter[UF_CRM_1661089717]=",
-#             "task": "tasks.task.get"
-#
-#         }
-#     })
-    # 'tasks.task.get',
-# "crm.deal.list",
-#     {
-#         order: { "STAGE_ID": "ASC" },
-#         filter: { ">PROBABILITY": 50 },
-#         select: [ "ID", "TITLE", "STAGE_ID", "PROBABILITY", "OPPORTUNITY", "CURRENCY_ID" ]
-#     },
-
-# {taskId: 1, select: ['ID', 'TITLE']},
-# response_deal = bx24.call(
-#         "crm.deal.get",
-#         {
-#             "id": id_deal
-#         }
-#     )
-
-
-
-# def create_or_update(id_deal):
-#     """ Сохранение компании из BX24 """
-#     response_deal = bx24.call(
-#         "crm.deal.get",
-#         {
-#             "id": id_deal
-#         }
-#     )
-#
-#     if not response_deal or "result" not in response_deal:
-#         return response_deal
-#
-#     direction = response_deal["result"]["CATEGORY_ID"]
-#     if direction in [43, "43"]:
-#         direction = response_deal["result"]["UF_CRM_1610523951"]
-#
-#     stage_abbrev = response_deal["result"]["STAGE_ID"]
-#     stage = Stage.objects.get(abbrev=stage_abbrev)
-#
-#     deal = {
-#         "id_bx": response_deal["result"]["ID"],
-#         "title": response_deal["result"]["TITLE"],
-#         "date_create": response_deal["result"]["DATE_CREATE"],
-#         "date_modify": response_deal["result"]["DATE_MODIFY"],
-#         "date_closed": response_deal["result"]["CLOSEDATE"] or None,
-#         "closed": True if response_deal["result"]["CLOSED"] == "Y" else False,
-#         "opportunity": response_deal["result"]["OPPORTUNITY"],
-#         "balance_on_payments": editing_numb(response_deal["result"]["UF_CRM_1575629957086"]),
-#         "amount_paid": editing_numb(response_deal["result"]["UF_CRM_1575375338"]),
-#         "company": response_deal["result"]["COMPANY_ID"],
-#         "direction": direction,
-#         "stage": stage.pk,
-#     }
-#
-#     exist_deal = Deal.objects.filter(id_bx=deal["id_bx"]).first()
-#     if not exist_deal:
-#         # при создании
-#         serializer = DealSerializer(data=deal)
-#     else:
-#         # при обновлении
-#         serializer = DealSerializer(exist_deal, data=deal)
-#
-#     if serializer.is_valid():
-#         serializer.save()
-#         return serializer.data
-#
-#     return serializer.errors
-#
-#
-# def editing_numb(numb):
-#     """ Преобразует денежное значение из BX24 в число """
-#     numb = numb.split("|")[0] or "0"
-#     if numb:
-#         return f"{float(numb):.2f}"
-#     else:
-#         return None

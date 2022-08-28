@@ -95,6 +95,7 @@ class TaskCreateApiView(views.APIView):
 
         # проброс комментариев в задачу
         service_func.throwing_comments(task, deal)
+        service_func.change_deadline(task, deal)
 
         return Response("OK", status=status.HTTP_200_OK)
 
@@ -171,6 +172,7 @@ class TaskUpdateApiView(views.APIView):
 
         # проброс комментариев в задачу
         service_func.throwing_comments(task, deal)
+        service_func.change_deadline(task, deal)
 
         return Response("OK", status=status.HTTP_200_OK)
 
