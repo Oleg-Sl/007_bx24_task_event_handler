@@ -171,6 +171,10 @@ def throwing_comments(task, deal):
         })
         return
 
+    # если статус не "создание" задачи
+    if task.get("status") not in [2, '2']:
+        return
+
     task_name_rus = get_task_name(deal, task["id"])
 
     if not task_name_rus:
@@ -219,6 +223,10 @@ def change_deadline(task, deal):
     id_task_main = get_id_task_from_deal(deal, FIELD_DEAL__TASK_ORDER_TRANSFER)
 
     if id_task_main == id_task_minor:
+        return
+
+    # если статус не "создание" задачи
+    if task.get("status") not in [2, '2']:
         return
 
     if not id_task_main:
