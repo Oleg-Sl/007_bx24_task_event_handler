@@ -194,8 +194,8 @@ class TaskChangeStatusApiView(views.APIView):
             "request.data": request.data
         })
 
-        # if application_token != APPLICATION_TOKEN:
-        #     return Response("Unverified event source", status=status.HTTP_400_BAD_REQUEST)
+        if application_token != APPLICATION_TOKEN:
+            return Response("Unverified event source", status=status.HTTP_400_BAD_REQUEST)
 
         if not task_id:
             return Response("Not transferred ID task", status=status.HTTP_400_BAD_REQUEST)
