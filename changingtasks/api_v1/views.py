@@ -16,14 +16,14 @@ from . import service, bitrix24
 from .service import MyException
 
 
-logging.basicConfig(filename="log_task.log", level=logging.ERROR,
+logging.basicConfig(filename="./logs_api_v1/log_task.log", level=logging.ERROR,
                     format='[%(asctime)s] %(levelname).1s %(message)s', datefmt='%Y.%m.%d %H:%M:%S')
 
 logger_success = logging.getLogger('success')
 logger_success.setLevel(logging.INFO)
 
 # fh_success = logging.FileHandler('log_success_task.log')
-fh_success = logging.handlers.TimedRotatingFileHandler('log_success_task.log', when='D', interval=1, encoding="cp1251")
+fh_success = logging.handlers.TimedRotatingFileHandler('./logs_api_v1/log_success_task.log', when='D', interval=1, encoding="cp1251")
 
 formatter = logging.Formatter('[%(asctime)s] %(levelname).1s %(message)s')
 fh_success.setFormatter(formatter)
