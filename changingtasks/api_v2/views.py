@@ -119,7 +119,6 @@ class TaskUpdateApiView(views.APIView):
             logger_error.error("Not transferred ID task")
             return Response("Not transferred ID task", status=status.HTTP_400_BAD_REQUEST)
 
-
         # получение данных сущности - задача
         result_task = service_func.get_task_data(task_id)
         # logger_error.error({
@@ -175,6 +174,9 @@ class TaskUpdateApiView(views.APIView):
         service_func.throwing_comments(task, deal)
         # изменение крайнего строка выполнения главной задачи
         service_func.change_deadline(task, deal)
+        # Отслеживание изменения названия задачи на монтаж и проброс ее крайнего срока в комментарии задач на поспечать и производство
+        service_func.add_deadline_task_montage_in_taskpospechat_and_prod(task, deal)
+
 
         return Response("OK", status=status.HTTP_200_OK)
 

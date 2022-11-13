@@ -5,7 +5,7 @@ import datetime
 
 
 from . import bitrix24
-from ..models import Task
+from ..models import Task, TaskTitle
 from . import params
 
 
@@ -42,7 +42,7 @@ bx24 = bitrix24.Bitrix24()
 #     # "design": "UF_CRM_1661089657",                  # ID задачи на дизайн
 #     # "invoice_payment": "UF_CRM_1661253202",         # ID задачи счет на предоплату/постоплату
 # }
-#
+
 # STATUS_TASK = {
 #     "2": "Ждет выполнения",
 #     "3": "Выполняется",
@@ -265,6 +265,58 @@ def change_deadline(task, deal):
     # обновление крайнего срока главной задачи
     if not deadline_main or deadline_main < deadline_minor:
         update_date(id_task_main, deadline_minor)
+
+
+def add_deadline_task_montage_in_taskpospechat_and_prod(task, deal):
+    emoji_montage = "✅"
+    task_id = task["id"]
+    task_title = task["title"]
+    montage_task_id = deal.get("UF_CRM_1661089762")
+    emoji_first = get_first_emoji(task_title)
+    text_comment = ""
+
+    # Если это не задача на монтаж
+    if task_id != montage_task_id:
+        return
+
+    # Если эмоджи отсутствует
+    if emoji_first is None:
+        return
+
+    # Если эмодзи не изменился
+    exist_task = TaskTitle.objects.filter(id_bx=task_id).first()
+    if exist_task and task_title.startswith(exist_task.first_emoji):
+        return
+
+    # Если название содержит эмоджи монтаж выполнен, а в предыдущий раз был другой эмодзи
+    if exist_task and task_title.startswith(emoji_montage) and exist_task.first_emoji != emoji_montage:
+        deadline = task.get("DEADLINE")
+        text_comment = f"Задача на монтаж согласована с крайним сроком - {deadline}"
+        if deal["UF_CRM_1661089736"]:
+            send_comment(deal["UF_CRM_1661089736"], text_comment)
+        if deal["UF_CRM_1661089717"]:
+            send_comment(deal["UF_CRM_1661089717"], text_comment)
+        logger_success.info({
+            "event": "add add_deadline_task_montage_in_taskpospechat_and_prod",
+            "id_deal": deal["ID"],
+            "id_task": task_id,
+            "comment": text_comment
+        })
+
+    if exist_task:
+        exist_task.first_emoji = emoji_first
+    else:
+        exist_task = TaskTitle(id_bx=task_id, first_emoji=emoji_first)
+
+
+def get_first_emoji(string):
+    # перебор списка возможных эмоджи
+    for emoji in params.smiles_lst:
+        if string.startswith(emoji):
+            return emoji
+
+
+
 
 
 def change_smile_in_title_task(task, smile):
