@@ -6,6 +6,8 @@ import datetime
 
 from . import bitrix24
 from ..models import Task
+from . import params
+
 
 logger_success = logging.getLogger('success')
 logger_success.setLevel(logging.INFO)
@@ -263,5 +265,79 @@ def change_deadline(task, deal):
     # обновление крайнего срока главной задачи
     if not deadline_main or deadline_main < deadline_minor:
         update_date(id_task_main, deadline_minor)
+
+
+def change_smile_in_title_task(task, smile):
+    title = task['title']
+    id_task = task['id']
+    new_title = get_new_title(title, smile)
+
+    # Если не удалось получить новое название задачи
+    if not new_title:
+        logger_error.error({
+            "event": "TaskChangeStatusApiView",
+            "task_id": id_task,
+            "title_old": title,
+            "message": "Не удалось сформировать новое название задачи",
+        })
+        return {
+            "status": False,
+            "desc": "Нет удалось сформировать новое название задачи",
+            "old_title": title
+        }
+
+    response = bx24.call(
+        "tasks.task.update",
+        {
+            "taskId": id_task,
+            "fields": {"TITLE": new_title}
+        }
+    )
+
+    # Если не пришел ответ от  Битрикс
+    if not response or "result" not in response or "task" not in response["result"]:
+        logger_error.error({
+            "event": "TaskChangeStatusApiView",
+            "task_id": id_task,
+            "response": response,
+            "message": "Не удалось изменить название задачи в Битрикс",
+        })
+        return {
+            "status": False,
+            "desc": f"Нет удалось изменить название задачи в биртикс",
+            "response_bx24": response
+        }
+
+    logger_success.info({
+        "event": "change_smile_in_title_task",
+        "id_task": id_task,
+        "title_old": title,
+        "title_new": new_title,
+        "title_new_fact": response["result"]["task"].get("title")
+    })
+
+    return {
+        "status": True,
+        "id_task": id_task,
+        "title": response["result"]["task"].get("title"),
+    }
+
+
+"""
+Получает строку, заменяет эмоджи на переданный и возвращает новую строку 
+"""
+def get_new_title(title_old, emoji_new, pos_emoji=1):
+    title_old = title_old.strip()
+    emoji_old_len = get_len_emoji_str_startswith(title_old[pos_emoji-1:])
+    if emoji_old_len is not None:
+        return emoji_new + title_old[emoji_old_len:]
+
+
+"""Возвращает длину эмоджи с которого начинается строка, иначе None"""
+def get_len_emoji_str_startswith(string):
+    # перебор списка возможных эмоджи
+    for emoji in params.smiles_lst:
+        if string.startswith(emoji):
+            return len(emoji)
 
 
