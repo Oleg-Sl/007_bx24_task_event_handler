@@ -8,6 +8,7 @@ from .views import (
     TaskUpdateApiView,
     TaskDeleteApiView,
     TaskChangeStatusApiView,
+    TaskDataApiView,
 )
 
 
@@ -22,7 +23,9 @@ urlpatterns = [
     path('task-update/', TaskUpdateApiView.as_view()),              # изменение задачи
     path('task-delete/', TaskDeleteApiView.as_view()),              # удаление задачи
 
-    path('task-change-status/', TaskChangeStatusApiView.as_view()), # изменение статуса задачи (смена 1-го эмоджи)
+    path('task-change-status/', TaskChangeStatusApiView.as_view()),     # изменение статуса задачи (смена 1-го эмоджи)
+    path('task-data/', TaskDataApiView.as_view()),                      # получить данные задачи
+    path('task-change-deadline/', TaskChangeDeadlineApiView.as_view()), # изменение дедлайна задачи
 
 ]
 

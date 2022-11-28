@@ -316,9 +316,6 @@ def get_first_emoji(string):
             return emoji
 
 
-
-
-
 def change_smile_in_title_task(task, smile):
     title = task['title']
     id_task = task['id']
@@ -373,6 +370,44 @@ def change_smile_in_title_task(task, smile):
         "id_task": id_task,
         "title": response["result"]["task"].get("title"),
     }
+
+
+def change_deadline_task(id_task, deadline):
+    response = bx24.call(
+        "tasks.task.update",
+        {
+            "taskId": id_task,
+            "fields": {"DEADLINE": deadline}
+        }
+    )
+
+    # Если не пришел ответ от  Битрикс
+    if not response or "result" not in response or "task" not in response["result"]:
+        logger_error.error({
+            "event": "TaskChangeDeadlineApiView",
+            "task_id": id_task,
+            "response": response,
+            "message": "Не удалось изменить крайний срок задачи в Битрикс",
+        })
+        return {
+            "status": False,
+            "desc": f"Нет удалось изменить крайний срок задачи в биртикс",
+            "response_bx24": response
+        }
+
+    logger_success.info({
+        "event": "change_deadline_task",
+        "id_task": id_task,
+        "deadline": deadline,
+        "deadline_new_fact": response["result"]["task"].get("deadline")
+    })
+
+    return {
+        "status": True,
+        "id_task": id_task,
+        "deadline": response["result"]["task"].get("deadline"),
+    }
+
 
 
 """
