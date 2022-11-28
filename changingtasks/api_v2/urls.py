@@ -9,6 +9,7 @@ from .views import (
     TaskDeleteApiView,
     TaskChangeStatusApiView,
     TaskDataApiView,
+    TaskChangeDeadlineApiView,
 )
 
 

@@ -95,8 +95,8 @@ class TaskCreateApiView(views.APIView):
 
         # проброс комментариев в задачу
         service_func.throwing_comments(task, deal)
-        # изменение крайнего строка выполнения главной задачи
-        service_func.change_deadline(task, deal)
+        # # изменение крайнего строка выполнения главной задачи
+        # service_func.change_deadline(task, deal)
 
         return Response("OK", status=status.HTTP_200_OK)
 
@@ -172,11 +172,10 @@ class TaskUpdateApiView(views.APIView):
 
         # проброс комментариев в главную задачу
         service_func.throwing_comments(task, deal)
-        # изменение крайнего строка выполнения главной задачи
-        service_func.change_deadline(task, deal)
+        # # изменение крайнего строка выполнения главной задачи
+        # service_func.change_deadline(task, deal)
         # Отслеживание изменения названия задачи на монтаж и проброс ее крайнего срока в комментарии задач на поспечать и производство
         service_func.add_deadline_task_montage_in_taskpospechat_and_prod(task, deal)
-
 
         return Response("OK", status=status.HTTP_200_OK)
 
