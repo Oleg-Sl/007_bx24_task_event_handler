@@ -23,12 +23,19 @@ logger_success = logging.getLogger('success')
 logger_success.setLevel(logging.INFO)
 
 # fh_success = logging.FileHandler('log_success_task.log')
-fh_success = logging.handlers.TimedRotatingFileHandler('./logs_api_v1/log_success_task.log', when='D', interval=1, encoding="cp1251")
+fh_success = logging.handlers.TimedRotatingFileHandler('./logs_api_v1/log_success_task.log', when='D', interval=1, encoding="cp1251", backupCount=10)
 
 formatter = logging.Formatter('[%(asctime)s] %(levelname).1s %(message)s')
 fh_success.setFormatter(formatter)
 logger_success.addHandler(fh_success)
 
+# логгер входные данные событий
+logger_access = logging.getLogger('tasks_access')
+logger_access.setLevel(logging.INFO)
+fh_access = logging.handlers.TimedRotatingFileHandler('./logs_api_v1/access.log', when='D', interval=1, backupCount=10)
+formatter_access = logging.Formatter('[%(asctime)s] %(levelname).1s %(message)s')
+fh_access.setFormatter(formatter_access)
+logger_access.addHandler(fh_access)
 
 #
 token_data = service.get_token()
@@ -119,6 +126,11 @@ class TaskUpdateApiView(views.APIView):
     bx24 = bitrix24.Bitrix24()
 
     def post(self, request):
+        logger_access.info(json.dumps({
+            "url_path": "api/v1/task-update/",
+            "handler": "TaskUpdateApiView",
+            "query_params": request.query_params,
+        }))
         task_id = request.query_params.get("id", "")
         marker = request.query_params.get("marker", None)
         position = request.query_params.get("position", None)
@@ -141,7 +153,6 @@ class TaskUpdateApiView(views.APIView):
             "select": ["ID", "TITLE"]
         })
 
-        # print(result_task_data)
         # старое название задачи
         title = result_task_data["result"]["task"]["title"]
 
@@ -192,6 +203,11 @@ class TaskCommentApiView(views.APIView):
     bx24 = bitrix24.Bitrix24()
 
     def post(self, request):
+        logger_access.info(json.dumps({
+            "url_path": "api/v1/task-comment/",
+            "handler": "TaskCommentApiView",
+            "query_params": request.query_params,
+        }))
         task_ids = request.query_params.get("ids", None)
         comment = request.query_params.get("comment", None)
         request_token = request.query_params.get("request_token", None)
@@ -229,6 +245,11 @@ class TaskCompleteApiView(views.APIView):
     bx24 = bitrix24.Bitrix24()
 
     def post(self, request):
+        logger_access.info(json.dumps({
+            "url_path": "api/v1/task-complete/",
+            "handler": "TaskCompleteApiView",
+            "query_params": request.query_params,
+        }))
         task_id = request.query_params.get("id", None)
         request_token = request.query_params.get("request_token", None)
 
@@ -255,6 +276,11 @@ class TaskStartApiView(views.APIView):
     bx24 = bitrix24.Bitrix24()
 
     def post(self, request):
+        logger_access.info(json.dumps({
+            "url_path": "api/v1/task-start/",
+            "handler": "TaskStartApiView",
+            "query_params": request.query_params,
+        }))
         task_id = request.query_params.get("id", None)
         request_token = request.query_params.get("request_token", None)
 
@@ -281,6 +307,11 @@ class TaskDateUpdateApiView(views.APIView):
     bx24 = bitrix24.Bitrix24()
 
     def post(self, request):
+        logger_access.info(json.dumps({
+            "url_path": "api/v1/task-date-update/",
+            "handler": "TaskDateUpdateApiView",
+            "query_params": request.query_params,
+        }))
         task_id = request.query_params.get("id", "")
         date = request.query_params.get("date", "")
 

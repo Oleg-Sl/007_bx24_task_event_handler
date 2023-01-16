@@ -139,6 +139,11 @@ def update_date(id_task, date):
             "fields": {"DEADLINE": date.isoformat()}
         }
     )
+    logger_success.info({
+        "func": "update_date",
+        "id_deal": id_task,
+        "new_date": date.isoformat()
+    })
     return response
 
 
@@ -265,6 +270,10 @@ def change_deadline(task, deal):
     # обновление крайнего срока главной задачи
     if not deadline_main or deadline_main < deadline_minor:
         update_date(id_task_main, deadline_minor)
+        logger_success.info({
+            "func": "change_deadline",
+            "id_task": id_task_main,
+        })
 
 
 def add_deadline_task_montage_in_taskpospechat_and_prod(task, deal):

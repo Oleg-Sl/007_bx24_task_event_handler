@@ -10,10 +10,18 @@ from .services import service_func, tokens
 
 logger_error = logging.getLogger('error')
 logger_error.setLevel(logging.INFO)
-fh_error = logging.handlers.TimedRotatingFileHandler('./logs/error.log', when='D', interval=1, backupCount=14)
+fh_error = logging.handlers.TimedRotatingFileHandler('./logs/error.log', when='D', interval=1, backupCount=10)
 formatter_error = logging.Formatter('[%(asctime)s] %(levelname).1s %(message)s')
 fh_error.setFormatter(formatter_error)
 logger_error.addHandler(fh_error)
+
+# логгер входные данные событий
+logger_access = logging.getLogger('api_v2_access')
+logger_access.setLevel(logging.INFO)
+fh_access = logging.handlers.TimedRotatingFileHandler('./logs/access.log', when='D', interval=1, backupCount=10)
+formatter_access = logging.Formatter('[%(asctime)s] %(levelname).1s %(message)s')
+fh_access.setFormatter(formatter_access)
+logger_access.addHandler(fh_access)
 
 token_data = service.get_token()
 APPLICATION_TOKEN = token_data.get("application_token", None)
@@ -36,11 +44,13 @@ class InstallApiView(views.APIView):
 
 class TaskCreateApiView(views.APIView):
     def post(self, request):
-        logger_error.info({
-            "auth[application_token]": request.data.get("auth[application_token]", None),
+        logger_access.info({
+            "url_path": "api/v2/task-create/",
+            "handler": "TaskCreateApiView",
+            "query_params": request.data,
             "data[FIELDS_AFTER][ID]": request.data.get("data[FIELDS_AFTER][ID]", ""),
-            "request.data": request.data
         })
+
         # task_id = request.query_params.get("data[FIELDS_AFTER][ID]", "")
         task_id = request.data.get("data[FIELDS_AFTER][ID]", "")
         application_token = request.data.get("auth[application_token]", None)
@@ -104,9 +114,11 @@ class TaskCreateApiView(views.APIView):
 class TaskUpdateApiView(views.APIView):
 
     def post(self, request):
-        logger_error.info({
+        logger_access.info({
+            "url_path": "api/v2/task-update/",
+            "handler": "TaskUpdateApiView",
+            "query_params": request.data,
             "data[FIELDS_AFTER][ID]": request.data.get("data[FIELDS_AFTER][ID]", ""),
-            "request.data": request.data
         })
         task_id = request.data.get("data[FIELDS_AFTER][ID]", "")
         application_token = request.data.get("auth[application_token]", None)
@@ -186,14 +198,19 @@ class TaskDeleteApiView(views.APIView):
 
 class TaskChangeStatusApiView(views.APIView):
     def post(self, request):
+        logger_access.info({
+            "url_path": "api/v2/task-change-status/",
+            "handler": "TaskChangeStatusApiView",
+            "query_params": request.data,
+        })
         task_id = request.data.get("task_id", "")
         emoji = request.data.get("emoji", None)
         application_token = request.data.get("application_token", None)
 
-        logger_error.info({
-            "task_id": task_id,
-            "request.data": request.data
-        })
+        # logger_error.info({
+        #     "task_id": task_id,
+        #     "request.data": request.data
+        # })
 
         if application_token != APPLICATION_TOKEN:
             return Response("Unverified event source", status=status.HTTP_400_BAD_REQUEST)
@@ -225,13 +242,18 @@ class TaskChangeStatusApiView(views.APIView):
 
 class TaskDataApiView(views.APIView):
     def post(self, request):
+        logger_access.info({
+            "url_path": "api/v2/task-data/",
+            "handler": "TaskDataApiView",
+            "query_params": request.data,
+        })
         task_id = request.data.get("task_id", "")
         application_token = request.data.get("application_token", None)
 
-        logger_error.info({
-            "task_id": task_id,
-            "request.data": request.data
-        })
+        # logger_error.info({
+        #     "task_id": task_id,
+        #     "request.data": request.data
+        # })
 
         if application_token != APPLICATION_TOKEN:
             return Response("Unverified event source", status=status.HTTP_400_BAD_REQUEST)
@@ -260,14 +282,19 @@ class TaskDataApiView(views.APIView):
 
 class TaskChangeDeadlineApiView(views.APIView):
     def post(self, request):
+        logger_access.info({
+            "url_path": "api/v2/task-change-deadline/",
+            "handler": "TaskChangeDeadlineApiView",
+            "query_params": request.data,
+        })
         task_id = request.data.get("task_id", "")
         deadline = request.data.get("deadline", "")
         application_token = request.data.get("application_token", None)
 
-        logger_error.info({
-            "task_id": task_id,
-            "request.data": request.data
-        })
+        # logger_error.info({
+        #     "task_id": task_id,
+        #     "request.data": request.data
+        # })
 
         if application_token != APPLICATION_TOKEN:
             return Response("Unverified event source", status=status.HTTP_400_BAD_REQUEST)
