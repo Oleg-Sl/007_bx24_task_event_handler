@@ -148,13 +148,18 @@ def update_date(id_task, date):
 
 
 # получение ID сделки из массива привязок к сущностям CRM
-def get_id_deal_from_line_str(line, prefix):
-    if not isinstance(line, list) or not line:
+def get_id_deal_from_line_str(arr_binding_entity, prefix):
+    if not isinstance(arr_binding_entity, list) or not arr_binding_entity:
         return
 
-    arr = line[0].split("_")
-    if len(arr) == 2 and arr[0] == prefix:
-        return arr[1]
+    for binding_entity in arr_binding_entity:
+        arr_entity_data_ = binding_entity.split("_")
+        if len(arr_entity_data_) == 2 and arr_entity_data_[0] == prefix:
+            return arr_entity_data_[1]
+
+    # arr = line[0].split("_")
+    # if len(arr) == 2 and arr[0] == prefix:
+    #     return arr[1]
 
 
 # получение ID задачи из сделки по названию поля
@@ -352,7 +357,7 @@ def change_smile_in_title_task(task, smile):
         }
     )
 
-    # Если не пришел ответ от  Битрикс
+    # Если не пришел ответ от Битрикс
     if not response or "result" not in response or "task" not in response["result"]:
         logger_error.error({
             "event": "TaskChangeStatusApiView",
