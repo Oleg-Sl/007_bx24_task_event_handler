@@ -122,6 +122,11 @@ class InstallApiView(views.APIView):
         return render(request, 'install.html')
 
 
+class IndexApiView(views.APIView):
+    @xframe_options_exempt
+    def post(self, request):
+        return render(request, 'index.html')
+
 class TaskUpdateApiView(views.APIView):
     bx24 = bitrix24.Bitrix24()
 
