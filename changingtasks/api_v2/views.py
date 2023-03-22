@@ -3,10 +3,12 @@ from rest_framework.response import Response
 from django.shortcuts import render
 from django.views.decorators.clickjacking import xframe_options_exempt
 import logging
+from threading import Thread
 
 from . import bitrix24
 from .services import service
 from .services import service_func, tokens
+from .tasks import forward_comment
 
 logger_error = logging.getLogger('error')
 logger_error.setLevel(logging.INFO)
@@ -300,7 +302,28 @@ class TaskChangeDeadlineApiView(views.APIView):
         return Response(res, status=status.HTTP_200_OK)
 
 
+class TaskCommentCreateApiView(views.APIView):
+    def post(self, request):
+        logger_access.info({
+            "handler": "TaskCommentCreateApiView",
+            "data": request.data,
+            "query_params": request.query_params
+        })
+        task_id = request.data.get("data[FIELDS_AFTER][TASK_ID]", None)
+        comment_id = request.data.get("data[FIELDS_AFTER][ID]", None)
+        application_token = request.data.get("auth[application_token]", None)
 
+        if not task_id:
+            return Response("Not transferred ID task", status=status.HTTP_400_BAD_REQUEST)
+
+        if not comment_id:
+            return Response("Not transferred ID comment", status=status.HTTP_400_BAD_REQUEST)
+
+        # forward_comment.run(task_id, comment_id)
+        thr = Thread(target=forward_comment.run, args=(task_id, comment_id,))
+        thr.start()
+
+        return Response("Обновление списка сотрудников началось", status=status.HTTP_200_OK)
 
 
 
