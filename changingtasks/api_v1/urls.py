@@ -2,7 +2,15 @@ from django.urls import include, path
 from rest_framework import routers
 
 
-from .views import (InstallApiView, TaskUpdateApiView, TaskCommentApiView, TaskCompleteApiView, TaskStartApiView, TaskDateUpdateApiView)
+from .views import (
+    InstallApiView,
+    TaskUpdateApiView,
+    TaskCommentApiView,
+    TaskCompleteApiView,
+    TaskStartApiView,
+    TaskDateUpdateApiView,
+    IndexApiView
+)
 
 
 app_name = 'api_v1'
