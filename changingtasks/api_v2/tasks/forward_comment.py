@@ -17,7 +17,7 @@ def run(task_id, comment_id):
     bx24 = bitrix24.Bitrix24()
 
     # Получение задачи и комментария
-    response = bx24.call("batch", {
+    response = bx24.callMethod("batch", {
         "halt": 0,
         "cmd": {
             "task": f"tasks.task.get?taskId={task_id}&select[]=UF_CRM_TASK",
@@ -47,7 +47,7 @@ def run(task_id, comment_id):
         return
 
     # Получение данных сделки
-    deal = bx24.call("crm.deal.get", {"id": id_deal}).get("result")
+    deal = bx24.callMethod("crm.deal.get", {"id": id_deal}).get("result")
     id_task_montage = deal["UF_CRM_1661089762"]     # монтаж
     id_task_print = deal["UF_CRM_1661089736"]       # поспечать
     id_task_order = deal["UF_CRM_1661089895"]       # передача заказа
@@ -57,7 +57,7 @@ def run(task_id, comment_id):
         return
 
     # Добавление комментария в задачу поспечать и передача заказа
-    response = bx24.call("batch", {
+    response = bx24.callMethod("batch", {
         "halt": 0,
         "cmd": {
             "1": f"task.commentitem.add?taskId={id_task_print}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}",
