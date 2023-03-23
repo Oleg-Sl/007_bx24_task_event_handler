@@ -38,7 +38,7 @@ def run(task_id, comment_id):
         })
         return
 
-    task = response.get("result", {}).get("result", {}).get("task", {})
+    task = response.get("result", {}).get("result", {}).get("task", {}).get("task", {})
     comment = response.get("result", {}).get("result", {}).get("comment", {})
 
     logger_fc.info({
