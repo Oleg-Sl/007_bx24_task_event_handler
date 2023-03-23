@@ -24,6 +24,11 @@ def run(task_id, comment_id):
             "comment": f"task.commentitem.get?taskId={task_id}&itemId={comment_id}"
         }
     })
+    logger_fc.info({
+        "stage": 0,
+        "task_id": task_id,
+        "response": response
+    })
     if not response or "result" not in response or "result" not in response["result"]:
         logger_fc.info({
             "errors": f"Не удалось получить данные задачи {task_id} и комментария {comment_id}",
@@ -36,6 +41,12 @@ def run(task_id, comment_id):
     task = response.get("result", {}).get("result", {}).get("task", {})
     comment = response.get("result", {}).get("result", {}).get("comment", {})
 
+    logger_fc.info({
+        "stage": 1,
+        "task_id": task_id,
+        "task": task,
+        "comment": comment
+    })
     # Проверка, что комментарий нужно переслать
     comment_msg = comment.get("POST_MESSAGE").strip()
     if not comment_msg.startswith(EMOJI_FORWARD_COMMENT):
@@ -48,6 +59,11 @@ def run(task_id, comment_id):
 
     # Получение данных сделки
     deal = bx24.callMethod("crm.deal.get", {"id": id_deal}).get("result")
+    logger_fc.info({
+        "stage": 2,
+        "task_id": task_id,
+        "deal": deal
+    })
     id_task_montage = deal["UF_CRM_1661089762"]     # монтаж
     id_task_print = deal["UF_CRM_1661089736"]       # поспечать
     id_task_order = deal["UF_CRM_1661089895"]       # передача заказа
@@ -63,6 +79,11 @@ def run(task_id, comment_id):
             "1": f"task.commentitem.add?taskId={id_task_print}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}",
             "2": f"task.commentitem.add?taskId={id_task_order}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}"
         }
+    })
+    logger_fc.info({
+        "stage": 3,
+        "task_id": task_id,
+        "response": response
     })
     if not response or "result" not in response or "result" not in response["result"]:
         logger_fc.info({
