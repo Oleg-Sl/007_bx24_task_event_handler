@@ -83,6 +83,17 @@ def run(task_id, comment_id):
     #         "2": f"task.commentitem.add?taskId={id_task_order}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}"
     #     }
     # })
+    logger_fc.info({
+        "stage": 777,
+        "tdata": {
+            "taskId": id_task_print,
+            "fields": {
+                "AUTHOR_ID": author_id,
+                "POST_MESSAGE": comment_msg,
+                "UF_FORUM_MESSAGE_DOC": files_ids
+            }
+        }
+    })
     response = bx24.call("task.commentitem.add", {
         "taskId": id_task_print,
         "fields": {
