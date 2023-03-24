@@ -83,53 +83,34 @@ def run(task_id, comment_id):
     #         "2": f"task.commentitem.add?taskId={id_task_order}&fields[AUTHOR_ID]={author_id}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}"
     #     }
     # })
-    logger_fc.info({
-        "stage": 777,
-        "id_task_order": id_task_order,
-        "id_task_print": id_task_print,
-    })
-    response = bx24.call("task.commentitem.add", {
-        "taskId": str(id_task_print),
-        "fields": {
-            "AUTHOR_ID": author_id,
-            "POST_MESSAGE": comment_msg,
-            "UF_FORUM_MESSAGE_DOC": files_ids
-        }
-    })
-    logger_fc.info({
-        "stage": 3,
-        "task_id": task_id,
-        "response": response,
-        "params": {
-            "taskId": str(id_task_print),
+    if id_task_print:
+        response = bx24.call("task.commentitem.add", {
+            "taskId": +id_task_print,
             "fields": {
                 "AUTHOR_ID": author_id,
                 "POST_MESSAGE": comment_msg,
                 "UF_FORUM_MESSAGE_DOC": files_ids
             }
-        }
-    })
-    response = bx24.call("task.commentitem.add", {
-        "taskId": str(id_task_order),
-        "fields": {
-            "AUTHOR_ID": author_id,
-            "POST_MESSAGE": comment_msg,
-            "UF_FORUM_MESSAGE_DOC": files_ids
-        }
-    })
-    logger_fc.info({
-        "stage": 4,
-        "task_id": task_id,
-        "response": response,
-        "params": {
-            "taskId": str(id_task_order),
+        })
+        logger_fc.info({
+            "stage": 3,
+            "task_id": task_id,
+            "response": response,
+        })
+    if id_task_order:
+        response = bx24.call("task.commentitem.add", {
+            "taskId": +id_task_order,
             "fields": {
-                    "AUTHOR_ID": author_id,
-                    "POST_MESSAGE": comment_msg,
-                    "UF_FORUM_MESSAGE_DOC": files_ids
-                }
-        }
-    })
+                "AUTHOR_ID": author_id,
+                "POST_MESSAGE": comment_msg,
+                "UF_FORUM_MESSAGE_DOC": files_ids
+            }
+        })
+        logger_fc.info({
+            "stage": 4,
+            "task_id": task_id,
+            "response": response,
+        })
     # if not response or "result" not in response or "result" not in response["result"]:
     #     logger_fc.info({
     #         "errors": f"Не удалось добавить комментарий к задаче {id_task_print}, {id_task_order} из задачи {id_task_montage}",
