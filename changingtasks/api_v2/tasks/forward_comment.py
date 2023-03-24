@@ -79,8 +79,8 @@ def run(task_id, comment_id):
     # response = bx24.callMethod("batch", {
     #     "halt": 0,
     #     "cmd": {
-    #         "1": f"task.commentitem.add?taskId={id_task_print}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}",
-    #         "2": f"task.commentitem.add?taskId={id_task_order}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}"
+    #         "1": f"task.commentitem.add?taskId={id_task_print}&fields[AUTHOR_ID]={author_id}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}",
+    #         "2": f"task.commentitem.add?taskId={id_task_order}&fields[AUTHOR_ID]={author_id}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}"
     #     }
     # })
     logger_fc.info({
@@ -89,7 +89,7 @@ def run(task_id, comment_id):
         "id_task_print": id_task_print,
     })
     response = bx24.call("task.commentitem.add", {
-        "taskId": id_task_print,
+        "taskId": str(id_task_print),
         "fields": {
             "AUTHOR_ID": author_id,
             "POST_MESSAGE": comment_msg,
@@ -99,10 +99,18 @@ def run(task_id, comment_id):
     logger_fc.info({
         "stage": 3,
         "task_id": task_id,
-        "response": response
+        "response": response,
+        "params": {
+            "taskId": str(id_task_print),
+            "fields": {
+                "AUTHOR_ID": author_id,
+                "POST_MESSAGE": comment_msg,
+                "UF_FORUM_MESSAGE_DOC": files_ids
+            }
+        }
     })
     response = bx24.call("task.commentitem.add", {
-        "taskId": id_task_order,
+        "taskId": str(id_task_order),
         "fields": {
             "AUTHOR_ID": author_id,
             "POST_MESSAGE": comment_msg,
@@ -112,7 +120,15 @@ def run(task_id, comment_id):
     logger_fc.info({
         "stage": 4,
         "task_id": task_id,
-        "response": response
+        "response": response,
+        "params": {
+            "taskId": str(id_task_order),
+            "fields": {
+                    "AUTHOR_ID": author_id,
+                    "POST_MESSAGE": comment_msg,
+                    "UF_FORUM_MESSAGE_DOC": files_ids
+                }
+        }
     })
     # if not response or "result" not in response or "result" not in response["result"]:
     #     logger_fc.info({
