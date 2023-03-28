@@ -35,5 +35,5 @@ def run(deadline):
                 "length": len(tasks)
             })
 
-        # response = bx24.callMethod("batch", {"halt": 0, "cmd": cmd})
+        response = bx24.callMethod("batch", {"halt": 0, "cmd": cmd})
 
