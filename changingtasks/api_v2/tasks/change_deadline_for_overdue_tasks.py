@@ -3,7 +3,6 @@ import datetime
 import re
 
 from .. import bitrix24
-# from bitrix24 import tokens, requests
 
 
 logger_change_deadline = logging.getLogger('change_deadline_for_overdue_tasks')
@@ -18,7 +17,6 @@ BATCH_SIZE = 25
 
 
 def run(deadline):
-    # logger_change_deadline.info(deadline)
     bx24 = bitrix24.Bitrix24()
     deadline_str = deadline.strftime("%Y-%m-%d")
     tasks = bx24.request_list("tasks.task.list", ["ID"], {"STATUS": -1})
@@ -33,7 +31,8 @@ def run(deadline):
             cmd[task_id] = f"tasks.task.update?taskId={task_id}&fields[DEADLINE]={deadline_str}&fields[status]=2"
             logger_change_deadline.info({
                 "task_id": task_id,
-                "deadline": deadline_str
+                "deadline": deadline_str,
+                "length": len(tasks)
             })
 
         # response = bx24.callMethod("batch", {"halt": 0, "cmd": cmd})
