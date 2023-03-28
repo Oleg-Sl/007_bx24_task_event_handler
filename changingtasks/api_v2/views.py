@@ -332,11 +332,10 @@ class ChangeDeadlineForOverdueTasksApiView(views.APIView):
         logger_access.info({
             "handler": "ChangeDeadlineForOverdueTaskApiView",
             "data": request.data,
-            "query_params": request.query_params,
-            "APPLICATION_TOKEN": APPLICATION_TOKEN
+            "query_params": request.query_params
         })
         # deadline = request.query_params.get("deadline", datetime.datetime.now().strftime("%Y-%m-%d")) or datetime.datetime.now().strftime("%Y-%m-%d")
-        application_token = request.data.get("application_token", None)
+        application_token = request.query_params.get("application_token", None)
         if application_token != APPLICATION_TOKEN:
             return Response("Unverified event source", status=status.HTTP_400_BAD_REQUEST)
         deadline_str = request.query_params.get("deadline")
