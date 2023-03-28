@@ -273,3 +273,26 @@ class Bitrix24:
 
         return result
 
+    def request_list(self, method, fields=None, filter={}, id_start=0):
+        filter[">ID"] = id_start
+        params = {
+            "order": {"ID": "ASC"},
+            "filter": filter,
+            "select": fields,
+            "start": -1
+        }
+        response = self.callMethod(method, params)
+        data = response.get("result", {})
+        if data and isinstance(data, dict) and "tasks" in data:
+            data = data.get("tasks")
+        print(data)
+        if data and isinstance(data, list):
+            id_start = data[-1].get("ID") or data[-1].get("id")
+            sleep(0.2)
+            try:
+                lst = self.request_list(method, fields, filter, id_start)
+                data.extend(lst)
+            except Exception as err:
+                print(err)
+
+        return data

@@ -11,7 +11,7 @@ from .views import (
     TaskDataApiView,
     TaskChangeDeadlineApiView,
     TaskCommentCreateApiView,
-
+    ChangeDeadlineForOverdueTasksApiView,
 )
 
 
@@ -26,6 +26,8 @@ urlpatterns = [
     # path('task-update/', TaskUpdateApiView.as_view()),                  # изменение задачи
     # path('task-delete/', TaskDeleteApiView.as_view()),                  # удаление задачи
     path('task-comment-create/', TaskCommentCreateApiView.as_view()),   # добавление комментария к задаче
+    path('change-deadline-all-overdue_tasks/', ChangeDeadlineForOverdueTasksApiView.as_view()),
+    # изменение крайнего срока в просроченных задачах
 
     # Методы для работы браузерного расширения
     path('task-change-status/', TaskChangeStatusApiView.as_view()),     # изменение статуса задачи (смена 1-го эмоджи)

@@ -3,12 +3,13 @@ from rest_framework.response import Response
 from django.shortcuts import render
 from django.views.decorators.clickjacking import xframe_options_exempt
 import logging
+import datetime
 from threading import Thread
 
 from . import bitrix24
 from .services import service
 from .services import service_func, tokens
-from .tasks import forward_comment
+from .tasks import forward_comment, change_deadline_for_overdue_tasks
 
 logger_error = logging.getLogger('error')
 logger_error.setLevel(logging.INFO)
@@ -326,6 +327,22 @@ class TaskCommentCreateApiView(views.APIView):
         return Response("Обновление списка сотрудников началось", status=status.HTTP_200_OK)
 
 
+class ChangeDeadlineForOverdueTasksApiView(views.APIView):
+    def post(self, request):
+        logger_access.info({
+            "handler": "ChangeDeadlineForOverdueTaskApiView",
+            "data": request.data,
+            "query_params": request.query_params
+        })
+        # deadline = request.query_params.get("deadline", datetime.datetime.now().strftime("%Y-%m-%d")) or datetime.datetime.now().strftime("%Y-%m-%d")
+        deadline_str = request.query_params.get("deadline")
+        if not deadline_str:
+            return Response("Не передан параметр deadline, формат 29.03.2023", status=status.HTTP_400_BAD_REQUEST)
+        deadline = datetime.datetime.strptime(deadline_str, "%d.%m.%Y")
+        thr = Thread(target=change_deadline_for_overdue_tasks.run, args=(deadline,))
+        thr.start()
+
+        return Response("Обновление крайнего срока задач началось", status=status.HTTP_200_OK)
 
 
 
