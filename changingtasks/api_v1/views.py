@@ -232,7 +232,7 @@ class TaskCommentApiView(views.APIView):
 
             result_task_comment = self.bx24.callMethod("task.commentitem.add", {
                 "taskId": task_id,
-                "fields": {"POST_MESSAGE": comment}
+                "fields": {"POST_MESSAGE": comment, "AUTHOR_ID": 217}
             })
 
             logger_success.info(json.dumps({
