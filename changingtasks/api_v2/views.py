@@ -338,9 +338,11 @@ class ChangeDeadlineForOverdueTasksApiView(views.APIView):
         application_token = request.query_params.get("application_token", None)
         if application_token != APPLICATION_TOKEN:
             return Response("Unverified event source", status=status.HTTP_400_BAD_REQUEST)
+
         deadline_str = request.query_params.get("deadline")
         if not deadline_str:
             return Response("Не передан параметр deadline, формат 29.03.2023", status=status.HTTP_400_BAD_REQUEST)
+
         deadline = datetime.datetime.strptime(deadline_str, "%d.%m.%Y")
         thr = Thread(target=change_deadline_for_overdue_tasks.run, args=(deadline,))
         thr.start()
