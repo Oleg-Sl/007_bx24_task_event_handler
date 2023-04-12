@@ -37,5 +37,5 @@ def run(deadline):
                 "requests": f"tasks.task.update?taskId={task_id}&fields[DEADLINE]={deadline_str}&fields[status]=2"
             })
 
-        # response = bx24.callMethod("batch", {"halt": 0, "cmd": cmd})
+        response = bx24.callMethod("batch", {"halt": 0, "cmd": cmd})
 
