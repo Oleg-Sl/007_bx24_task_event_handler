@@ -133,7 +133,7 @@ def comment_added_to_task_order(bx24, ids_task_bind, comment):
 
     if is_forward_comment(comment_msg, EMOJI_FORWARD_COMMENT__ORDER_CLOSE):
         cmd = {
-            "1": f"tasks.task.deger?taskId={ids_task_bind['order']}",
+            "1": f"tasks.task.defer?taskId={ids_task_bind['order']}",
             "2": f"task.commentitem.add?taskId={ids_task_bind['product']}&fields[AUTHOR_ID]={author_id}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}&{file_data}",
             "3": f"task.commentitem.add?taskId={ids_task_bind['montage']}&fields[AUTHOR_ID]={author_id}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}&{file_data}"
         }
