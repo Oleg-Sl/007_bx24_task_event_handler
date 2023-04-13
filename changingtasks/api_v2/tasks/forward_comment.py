@@ -11,7 +11,9 @@ fh_fc.setFormatter(formatter_fc)
 logger_fc.addHandler(fh_fc)
 
 # Комментарии начинающиеся с этого смайлика будут прокидываться в другую задачу
-EMOJI_FORWARD_COMMENT = "⏩"
+EMOJI_FORWARD_COMMENT__MONTAGE = "⏩"
+EMOJI_FORWARD_COMMENT__ORDER_CLOSE = "❌"
+EMOJI_FORWARD_COMMENT__ORDER_WARM = "🚨"
 
 
 def run(task_id, comment_id):
@@ -41,19 +43,12 @@ def run(task_id, comment_id):
 
     task = response.get("result", {}).get("result", {}).get("task", {}).get("task", {})
     comment = response.get("result", {}).get("result", {}).get("comment", {})
-
     logger_fc.info({
         "stage": 1,
         "task_id": task_id,
         "task": task,
         "comment": comment
     })
-    # Проверка, что комментарий нужно переслать
-    comment_msg = comment.get("POST_MESSAGE").strip()
-    author_id = comment.get("AUTHOR_ID")
-    files_ids = get_files_data(comment.get("ATTACHED_OBJECTS", {}))
-    if not is_forward_comment(comment_msg):
-        return
 
     # Получение ID связанной с задачей сделки
     id_deal = get_id_from_binding(task["ufCrmTask"], "D")
@@ -67,12 +62,30 @@ def run(task_id, comment_id):
         "task_id": task_id,
         "deal": deal
     })
-    id_task_montage = deal["UF_CRM_1661089762"]     # монтаж
-    id_task_print = deal["UF_CRM_1661089736"]       # поспечать
-    id_task_order = deal["UF_CRM_1661089895"]       # передача заказа
 
-    # если комментарий добавлен не в задачу на монтаж
-    if task_id != id_task_montage:
+    ids_task_bind = {
+        "montage": deal["UF_CRM_1661089762"],     # монтаж
+        "print": deal["UF_CRM_1661089736"],       # поспечать
+        "order": deal["UF_CRM_1661089895"],       # передача заказа (заказ)
+        "product": deal["UF_CRM_1661089717"]      # производство
+    }
+    # если комментарий добавлен к задаче - монтаж
+    if task_id == ids_task_bind["montage"]:
+        comment_added_to_task_montage(bx24, ids_task_bind, comment)
+
+    # если комментарий добавлен к задаче - заказ
+    if task_id == ids_task_bind["order"]:
+        comment_added_to_task_order(bx24, ids_task_bind, comment)
+
+
+# комментарий добавлен к задаче на монтаж:
+# Коммент в задаче Монтаж,  с символом "⏩" и текст после символа, будет автоматом оставлять сообщение в комментах задач Заказ и Поспечать
+def comment_added_to_task_montage(bx24, ids_task_bind, comment):
+    # Проверка, что комментарий нужно переслать
+    comment_msg = comment.get("POST_MESSAGE").strip()
+    author_id = comment.get("AUTHOR_ID")
+    files_ids = get_files_data(comment.get("ATTACHED_OBJECTS", {}))
+    if not is_forward_comment(comment_msg, EMOJI_FORWARD_COMMENT__MONTAGE):
         return
 
     file_data = "&".join([f"fields[UF_FORUM_MESSAGE_DOC][]={file_id}" for file_id in files_ids])
@@ -80,53 +93,69 @@ def run(task_id, comment_id):
     response = bx24.callMethod("batch", {
         "halt": 0,
         "cmd": {
-            "1": f"task.commentitem.add?taskId={id_task_print}&fields[AUTHOR_ID]={author_id}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}&{file_data}",
-            "2": f"task.commentitem.add?taskId={id_task_order}&fields[AUTHOR_ID]={author_id}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}&{file_data}"
+            "1": f"task.commentitem.add?taskId={ids_task_bind['print']}&fields[AUTHOR_ID]={author_id}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}&{file_data}",
+            "2": f"task.commentitem.add?taskId={ids_task_bind['order']}&fields[AUTHOR_ID]={author_id}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}&{file_data}"
         }
     })
     logger_fc.info({
-        "stage": 3,
-        "task_id": task_id,
+        "stage": 11,
+        "task_id": ids_task_bind['montage'],
         "response": response,
     })
 
-    # if id_task_print:
-    #     response = bx24.call("task.commentitem.add", {
-    #         "taskId": +id_task_print,
-    #         "fields": {
-    #             "AUTHOR_ID": author_id,
-    #             "POST_MESSAGE": comment_msg,
-    #             "UF_FORUM_MESSAGE_DOC": files_ids
-    #         }
-    #     })
-    #     logger_fc.info({
-    #         "stage": 3,
-    #         "task_id": task_id,
-    #         "response": response,
-    #     })
-
-    # if id_task_order:
-    #     response = bx24.call("task.commentitem.add", {
-    #         "taskId": +id_task_order,
-    #         "fields": {
-    #             "AUTHOR_ID": author_id,
-    #             "POST_MESSAGE": comment_msg,
-    #             "UF_FORUM_MESSAGE_DOC": files_ids
-    #         }
-    #     })
-    #     logger_fc.info({
-    #         "stage": 4,
-    #         "task_id": task_id,
-    #         "response": response,
-    #     })
     if not response or "result" not in response or "result" not in response["result"]:
-        logger_fc.info({
-            "errors": f"Не удалось добавить комментарий к задаче {id_task_print}, {id_task_order} из задачи {id_task_montage}",
-            "id_task_from": id_task_montage,
-            "ids_tasks_to": [id_task_print, id_task_order],
+        logger_fc.error({
+            "errors": f"Не удалось добавить комментарий к задаче {ids_task_bind['print']}, {ids_task_bind['order']} из задачи {ids_task_bind['montage']}",
+            "id_task_from": ids_task_bind['montage'],
+            "ids_tasks_to": [ids_task_bind['print'], ids_task_bind['order']],
             "text_message": comment.get("POST_MESSAGE"),
             "response": response
         })
+
+
+# Коммент в задаче Заказ, с символом "❌" и текст после символа, будет ставить автоматом задачу на "отложена" и
+# оставлять сообщение в комментах задач производство и монтаж
+# Коммент в задаче Заказ,  с символом "🚨" и текст после символа, будет автоматом оставлять сообщение в комментах
+# задач Производство, Поспечать, Монтаж (например важно сообщить всем о новых сроках, или новых вводных и тд.)
+def comment_added_to_task_order(bx24, ids_task_bind, comment):
+    # Проверка, что комментарий нужно переслать
+    comment_msg = comment.get("POST_MESSAGE").strip()
+    author_id = comment.get("AUTHOR_ID")
+    files_ids = get_files_data(comment.get("ATTACHED_OBJECTS", {}))
+    file_data = "&".join([f"fields[UF_FORUM_MESSAGE_DOC][]={file_id}" for file_id in files_ids])
+
+    if is_forward_comment(comment_msg, EMOJI_FORWARD_COMMENT__ORDER_CLOSE):
+        cmd = {
+            "1": f"tasks.task.update?taskId={ids_task_bind['order']}&fields[status]=6",
+            "2": f"task.commentitem.add?taskId={ids_task_bind['product']}&fields[AUTHOR_ID]={author_id}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}&{file_data}",
+            "3": f"task.commentitem.add?taskId={ids_task_bind['montage']}&fields[AUTHOR_ID]={author_id}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}&{file_data}"
+        }
+    elif is_forward_comment(comment_msg, EMOJI_FORWARD_COMMENT__ORDER_WARM):
+        cmd = {
+            "1": f"task.commentitem.add?taskId={ids_task_bind['product']}&fields[AUTHOR_ID]={author_id}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}&{file_data}",
+            "2": f"task.commentitem.add?taskId={ids_task_bind['print']}&fields[AUTHOR_ID]={author_id}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}&{file_data}",
+            "3": f"task.commentitem.add?taskId={ids_task_bind['montage']}&fields[AUTHOR_ID]={author_id}&fields[POST_MESSAGE]={comment.get('POST_MESSAGE')}&{file_data}"
+        }
+    else:
+        return
+
+    response = bx24.callMethod("batch", {"halt": 0, "cmd": cmd})
+
+    logger_fc.info({
+        "stage": 11,
+        "task_id": ids_task_bind['order'],
+        "response": response,
+    })
+
+    if not response or "result" not in response or "result" not in response["result"]:
+        logger_fc.error({
+            "errors": f"Не удалось добавить комментарий к задачам",
+            "id_task_from": ids_task_bind['order'],
+            "ids_tasks_to": [ids_task_bind['product'], ids_task_bind['print'], ids_task_bind['montage']],
+            "text_message": comment.get("POST_MESSAGE"),
+            "response": response
+        })
+
 
 
 def get_id_from_binding(arr_binding, prefix):
@@ -139,11 +168,11 @@ def get_id_from_binding(arr_binding, prefix):
             return arr_entity_data_[1]
 
 
-def is_forward_comment(comment):
+def is_forward_comment(comment, emoji_starting):
     match = re.match(r"(\[.+\].+\[.+\])?(.+)", comment)
     if not match or len(match.groups()) != 2:
         return
-    if match.group(2).strip().startswith(EMOJI_FORWARD_COMMENT):
+    if match.group(2).strip().startswith(emoji_starting):
         return True
 
 
