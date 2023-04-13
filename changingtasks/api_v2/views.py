@@ -9,7 +9,7 @@ from threading import Thread
 from . import bitrix24
 from .services import service
 from .services import service_func, tokens
-from .tasks import forward_comment, change_deadline_for_overdue_tasks
+from .tasks import forward_comment, change_deadline_for_overdue_tasks, change_days_in_title_task
 
 logger_error = logging.getLogger('error')
 logger_error.setLevel(logging.INFO)
@@ -320,7 +320,6 @@ class TaskCommentCreateApiView(views.APIView):
         if not comment_id:
             return Response("Not transferred ID comment", status=status.HTTP_400_BAD_REQUEST)
 
-        # forward_comment.run(task_id, comment_id)
         thr = Thread(target=forward_comment.run, args=(task_id, comment_id,))
         thr.start()
 
@@ -350,7 +349,25 @@ class ChangeDeadlineForOverdueTasksApiView(views.APIView):
         return Response("Обновление крайнего срока задач началось", status=status.HTTP_200_OK)
 
 
+class ChangeCountDaysInTaskTitleApiView(views.APIView):
+    def post(self, request):
+        logger_access.info({
+            "handler": "ChangeCountDaysInTaskTitleApiView",
+            "data": request.data,
+            "query_params": request.query_params
+        })
+        application_token = request.query_params.get("application_token", None)
+        if application_token != APPLICATION_TOKEN:
+            return Response("Unverified event source", status=status.HTTP_400_BAD_REQUEST)
 
+        task_id = request.query_params.get("task_id")
+        if not task_id:
+            return Response("Не передан параметр task_id", status=status.HTTP_400_BAD_REQUEST)
+
+        thr = Thread(target=change_days_in_title_task.run, args=(task_id,))
+        thr.start()
+
+        return Response("Изменение кол-во дней в названии задачи началось", status=status.HTTP_200_OK)
 
 
 
