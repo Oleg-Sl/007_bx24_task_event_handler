@@ -124,6 +124,13 @@ def comment_added_to_task_order(bx24, ids_task_bind, comment):
     files_ids = get_files_data(comment.get("ATTACHED_OBJECTS", {}))
     file_data = "&".join([f"fields[UF_FORUM_MESSAGE_DOC][]={file_id}" for file_id in files_ids])
 
+    logger_fc.info({
+        "task": "ORDER",
+        "stage": 10,
+        "task_id": ids_task_bind['order'],
+        "comment_msg": comment_msg,
+    })
+
     if is_forward_comment(comment_msg, EMOJI_FORWARD_COMMENT__ORDER_CLOSE):
         cmd = {
             "1": f"tasks.task.update?taskId={ids_task_bind['order']}&fields[status]=6",
