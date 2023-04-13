@@ -1,6 +1,7 @@
 import logging
 import datetime
 import re
+import time
 
 from .. import bitrix24
 
@@ -13,7 +14,7 @@ fh_change_deadline.setFormatter(formatter_change_deadline)
 logger_change_deadline.addHandler(fh_change_deadline)
 
 
-BATCH_SIZE = 25
+BATCH_SIZE = 15
 
 
 def run(deadline):
@@ -38,4 +39,5 @@ def run(deadline):
             })
 
         response = bx24.callMethod("batch", {"halt": 0, "cmd": cmd})
+        time.sleep(5)
 
