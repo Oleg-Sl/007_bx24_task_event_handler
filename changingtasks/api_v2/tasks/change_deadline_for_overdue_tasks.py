@@ -20,6 +20,7 @@ BATCH_SIZE = 15
 def run(deadline):
     bx24 = bitrix24.Bitrix24()
     deadline_str = deadline.strftime("%Y-%m-%d") + "T23:00"
+    new_deadline_str = deadline.strftime("%Y-%m-%d") + "T12:00"
     deadline_after = deadline - datetime.timedelta(days=1)
     tasks = bx24.request_list("tasks.task.list", ["ID"], {"STATUS": -1, "<DEADLINE": deadline_after.strftime("%Y-%m-%d")})
 
@@ -30,7 +31,7 @@ def run(deadline):
             if j >= length:
                 break
             task_id = tasks[j].get("id")
-            cmd[task_id] = f"tasks.task.update?taskId={task_id}&fields[DEADLINE]={deadline_str}&fields[status]=2"
+            cmd[task_id] = f"tasks.task.update?taskId={task_id}&fields[DEADLINE]={new_deadline_str}&fields[status]=2"
             logger_change_deadline.info({
                 "task_id": task_id,
                 "deadline": deadline_str,
