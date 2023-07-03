@@ -23,7 +23,7 @@ def run(deadline):
     new_deadline_str = deadline.strftime("%Y-%m-%d") + "T12:00"
     deadline_after = deadline - datetime.timedelta(days=1)
     tasks = bx24.request_list("tasks.task.list", ["ID"], {"STATUS": -1, "<DEADLINE": deadline_after.strftime("%Y-%m-%d")})
-
+    logger_change_deadline.info({"tasks": tasks})
     length = len(tasks)
     for i in range(0, length, BATCH_SIZE):
         cmd = {}
@@ -36,7 +36,7 @@ def run(deadline):
                 "task_id": task_id,
                 "deadline": deadline_str,
                 "length": len(tasks),
-                "requests": f"tasks.task.update?taskId={task_id}&fields[DEADLINE]={deadline_str}&fields[status]=2"
+                "requests": f"tasks.task.update?taskId={task_id}&fields[DEADLINE]={new_deadline_str}&fields[status]=2"
             })
 
         response = bx24.callMethod("batch", {"halt": 0, "cmd": cmd})
