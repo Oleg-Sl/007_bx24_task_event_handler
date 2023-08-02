@@ -329,20 +329,22 @@ class TaskDateUpdateApiView(views.APIView):
 
         date_new = datetime.datetime.strptime(date, "%d.%m.%Y %H:%M:%S") + datetime.timedelta(days=1)
 
-        body = {
-            "taskId": task_id,
-            "fields": {"DEADLINE": date_new.isoformat()}
+        fields = {
+            "DEADLINE": date_new.isoformat(),
         }
 
         if finish_date:
-            body["END_DATE_PLAN"] = finish_date
+            fields["END_DATE_PLAN"] = finish_date
 
-        result_task_update_date = self.bx24.callMethod("tasks.task.update", body)
+        result_task_update_date = self.bx24.callMethod("tasks.task.update", {
+            "taskId": task_id,
+            "fields": fields
+        })
 
         logger_success.info(json.dumps({
             "method": "task-update",
             "input data": {"id": task_id, "date": date, "finish_date": finish_date},
-            "body": body,
+            "fields": fields,
             "result": result_task_update_date.get("result", "")
         }))
 
