@@ -319,6 +319,7 @@ class TaskDateUpdateApiView(views.APIView):
         }))
         task_id = request.query_params.get("id", "")
         date = request.query_params.get("date", "")
+        finish_date = request.query_params.get("finish_date", "")
 
         if not task_id:
             return Response("Not transferred ID task", status=status.HTTP_400_BAD_REQUEST)
@@ -328,14 +329,20 @@ class TaskDateUpdateApiView(views.APIView):
 
         date_new = datetime.datetime.strptime(date, "%d.%m.%Y %H:%M:%S") + datetime.timedelta(days=1)
 
-        result_task_update_date = self.bx24.callMethod("tasks.task.update", {
+        body = {
             "taskId": task_id,
             "fields": {"DEADLINE": date_new.isoformat()}
-        })
+        }
+
+        if finish_date:
+            body["END_DATE_PLAN"] = finish_date
+
+        result_task_update_date = self.bx24.callMethod("tasks.task.update", body)
 
         logger_success.info(json.dumps({
             "method": "task-update",
-            "input data": {"id": task_id, "date": date},
+            "input data": {"id": task_id, "date": date, "finish_date": finish_date},
+            "body": body,
             "result": result_task_update_date.get("result", "")
         }))
 
