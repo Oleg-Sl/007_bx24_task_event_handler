@@ -100,7 +100,22 @@ def get_task_data(id_task):
         "tasks.task.get",
         {
             "taskId": id_task,
-            "select": ["UF_CRM_TASK", "STATUS", "TITLE", "DEADLINE"]
+            "select": ["UF_CRM_TASK", "STATUS", "TITLE", "DEADLINE", "AUDITORS", "ACCOMPLICES"]
+        }
+    )
+    return response
+
+
+def get_users_data(user_ids):
+    cmd = {}
+    for user_id in user_ids:
+        cmd[user_id] = f'user.get?ID={user_id}'
+
+    response = bx24.call(
+        "batch",
+        {
+            "halt": 0,
+            "cmd": cmd
         }
     )
     return response
@@ -378,6 +393,41 @@ def change_smile_in_title_task(task, smile):
         "title_new": new_title,
         "title_new_fact": response["result"]["task"].get("title")
     })
+
+    return {
+        "status": True,
+        "id_task": id_task,
+        "title": response["result"]["task"].get("title"),
+    }
+
+
+def change_business_trip_smile_in_title_task(task, emoji):
+    title = task['title']
+    id_task = task['id']
+
+    new_title = title
+    if emoji == '➽' and '➽' not in title:
+        splitting_title = title.split('|')
+        if len(splitting_title) > 2:
+            new_title = splitting_title[0] + '|' + splitting_title[1] + ' | ➽' + splitting_title[2]
+    elif not emoji:
+        new_title = title.replace("➽", "")
+
+    response = bx24.call(
+        "tasks.task.update",
+        {
+            "taskId": id_task,
+            "fields": {"TITLE": new_title}
+        }
+    )
+
+    # Если не пришел ответ от Битрикс
+    if not response or "result" not in response or "task" not in response["result"]:
+        return {
+            "status": False,
+            "desc": f"Нет удалось изменить название задачи в биртикс",
+            "response_bx24": response
+        }
 
     return {
         "status": True,

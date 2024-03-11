@@ -232,6 +232,34 @@ class TaskChangeStatusApiView(views.APIView):
         return Response(res, status=status.HTTP_200_OK)
 
 
+class TaskBusinessTripApiView(views.APIView):
+    def post(self, request):
+        task_id = request.data.get("task_id", "")
+        emoji = request.data.get("emoji", None)
+        application_token = request.data.get("application_token", None)
+
+        if application_token != APPLICATION_TOKEN:
+            return Response("Unverified event source", status=status.HTTP_400_BAD_REQUEST)
+
+        if not task_id:
+            return Response("Not transferred ID task", status=status.HTTP_400_BAD_REQUEST)
+
+        # if not emoji:
+        #     return Response("Not transferred new emoji", status=status.HTTP_400_BAD_REQUEST)
+
+        # получение данных сущности - задача
+        result_task = service_func.get_task_data(task_id)
+        if not result_task or "result" not in result_task or "task" not in result_task["result"]:
+            return Response("No response from bitrix", status=status.HTTP_400_BAD_REQUEST)
+
+        task = result_task["result"]["task"]
+
+        # изменение первого смайлика в названии задачи
+        res = service_func.change_business_trip_smile_in_title_task(task, emoji)
+
+        return Response(res, status=status.HTTP_200_OK)
+
+
 class TaskDataApiView(views.APIView):
     def post(self, request):
         logger_access.info({

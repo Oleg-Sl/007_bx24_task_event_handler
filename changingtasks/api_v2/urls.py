@@ -10,6 +10,7 @@ from .views import (
     TaskChangeStatusApiView,
     TaskDataApiView,
     TaskChangeDeadlineApiView,
+    TaskBusinessTripApiView,
     TaskCommentCreateApiView,
     ChangeDeadlineForOverdueTasksApiView,
     ChangeCountDaysInTaskTitleApiView,
@@ -34,6 +35,7 @@ urlpatterns = [
     path('task-change-status/', TaskChangeStatusApiView.as_view()),     # изменение статуса задачи (смена 1-го эмоджи)
     path('task-data/', TaskDataApiView.as_view()),                      # получить данные задачи
     path('task-change-deadline/', TaskChangeDeadlineApiView.as_view()), # изменение дедлайна задачи
+    path('task-business-trip/', TaskBusinessTripApiView.as_view()),     # командировка есть/нет
 
 ]
 
